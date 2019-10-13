@@ -1,0 +1,12 @@
+service problem
+{
+    disable         = no
+    type            = UNLISTED
+    socket_type     = stream
+    protocol        = tcp
+    user            = user
+    wait            = no
+    bind            = 0.0.0.0
+    server          = /home/user/run.sh
+    port            = 30428
+}

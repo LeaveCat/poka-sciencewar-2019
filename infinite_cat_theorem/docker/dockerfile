@@ -1,0 +1,36 @@
+From ubuntu:18.04
+MAINTAINER bincat
+
+RUN sed -i -re 's/([a-z]{2}.)?archive.ubuntu.com|security.ubuntu.com/mirror.kakao.com/g' /etc/apt/sources.list && \
+    apt-get update && apt-get -y dist-upgrade && \
+    apt-get install -y lib32z1 xinetd python gcc
+
+ARG problem=problem
+
+RUN useradd -m user -s /bin/bash
+
+RUN apt-get update && apt-get install -qq -y \
+  xinetd gcc-multilib vim wget python2.7 python-pip
+
+WORKDIR /home/user
+RUN rm .bash* .profile
+RUN ln -s /dev/null .bash_history
+COPY run.sh /home/user/run.sh
+COPY problem /home/user/problem
+COPY flag /home/user/flag
+
+RUN chown -R root:user /home/user
+
+COPY sample_xinetd /etc/xinetd.d/problem
+
+RUN chmod 700 .bash_history
+RUN chmod 640 flag
+RUN chmod 755 problem
+RUN chmod 755 run.sh
+
+ARG port=36973
+RUN echo "problem\t$port/tcp" >> /etc/services
+
+RUN service xinetd restart
+
+CMD ["/usr/sbin/xinetd", "-dontfork"]
